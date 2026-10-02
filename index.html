@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兒童數學樂園 (1-20 數字冒險)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600&family=Noto+Sans+TC:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Fredoka', 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            min-height: 100vh;
+        }
+        .bouncy-btn {
+            transition: all 0.2s ease;
+        }
+        .bouncy-btn:active {
+            transform: scale(0.95);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col items-center justify-between min-h-screen p-4">
+
+    <header class="w-full max-w-4xl text-center py-4 flex flex-col items-center">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-white drop-shadow-md tracking-wider">🌟 兒童數學冒險樂園 🌟</h1>
+        <p class="text-white text-lg font-medium mt-1">香港小學一年級數學作業：20以內數、順倒數、奇偶、比較數量與排次序！</p>
+        <button onclick="toggleAudio()" id="audio-toggle-btn" class="mt-3 px-4 py-1.5 bg-white/30 hover:bg-white/50 text-white rounded-full font-bold text-sm shadow backdrop-blur transition flex items-center gap-1.5">
+            🔊 聲音效果：已開啟
+        </button>
+    </header>
+
+    <nav class="w-full max-w-4xl bg-white/90 backdrop-blur rounded-2xl p-3 shadow-lg flex flex-wrap justify-center gap-2 mb-4">
+        <button onclick="switchTab('menu')" class="tab-btn px-4 py-2 rounded-xl font-bold bg-amber-500 text-white bouncy-btn shadow">主選單</button>
+        <button onclick="switchTab('unit1')" class="tab-btn px-4 py-2 rounded-xl font-bold bg-pink-100 text-pink-700 hover:bg-pink-200 bouncy-btn">單元一：認識1-20</button>
+        <button onclick="switchTab('unit2')" class="tab-btn px-4 py-2 rounded-xl font-bold bg-purple-100 text-purple-700 hover:bg-purple-200 bouncy-btn">單元二：順數/倒數/奇偶</button>
+        <button onclick="switchTab('unit3')" class="tab-btn px-4 py-2 rounded-xl font-bold bg-blue-100 text-blue-700 hover:bg-blue-200 bouncy-btn">單元三：比較數量</button>
+        <button onclick="switchTab('unit4')" class="tab-btn px-4 py-2 rounded-xl font-bold bg-green-100 text-green-700 hover:bg-green-200 bouncy-btn">單元四：排次序</button>
+    </nav>
+
+    <main class="w-full max-w-4xl bg-white/95 backdrop-blur rounded-3xl card-shadow p-6 md:p-8 flex-grow flex flex-col justify-center items-center relative overflow-hidden min-h-[480px]">
+
+        <!-- Main Menu View -->
+        <div id="view-menu" class="view-section w-full text-center space-y-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-indigo-600">請選擇一個學習單元（每回 10 題）！</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                <button onclick="switchTab('unit1')" class="p-5 bg-gradient-to-r from-pink-400 to-pink-500 text-white rounded-2xl font-bold text-xl shadow-md bouncy-btn flex items-center justify-center space-x-3">
+                    <span>🍓</span><span>單元一：認識 1-20</span>
+                </button>
+                <button onclick="switchTab('unit2')" class="p-5 bg-gradient-to-r from-purple-400 to-purple-500 text-white rounded-2xl font-bold text-xl shadow-md bouncy-btn flex items-center justify-center space-x-3">
+                    <span>🔢</span><span>單元二：順數、倒數、奇數、偶數</span>
+                </button>
+                <button onclick="switchTab('unit3')" class="p-5 bg-gradient-to-r from-blue-400 to-blue-500 text-white rounded-2xl font-bold text-xl shadow-md bouncy-btn flex items-center justify-center space-x-3">
+                    <span>⚖</span><span>單元三：比較數量</span>
+                </button>
+                <button onclick="switchTab('unit4')" class="p-5 bg-gradient-to-r from-green-400 to-green-500 text-white rounded-2xl font-bold text-xl shadow-md bouncy-btn flex items-center justify-center space-x-3">
+                    <span>🎟</span><span>單元四：排次序</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Unit 1 Game: Counting 1-20 (5 per row grid) -->
+        <div id="view-unit1" class="view-section hidden w-full text-center space-y-4">
+            <div class="flex justify-between items-center bg-pink-50 p-3 rounded-xl">
+                <h3 class="text-xl font-bold text-pink-700">單元一：認識 1 至 20</h3>
+                <div class="flex gap-4">
+                    <span id="u1-progress" class="font-bold text-pink-500 bg-white px-3 py-1 rounded-lg shadow-sm">第 1 / 10 題</span>
+                    <span id="u1-score" class="font-bold text-pink-600 bg-white px-3 py-1 rounded-lg shadow-sm">得分: 0</span>
+                </div>
+            </div>
+            <div id="u1-game-box" class="bg-pink-50/50 p-6 rounded-2xl border-2 border-pink-200"></div>
+        </div>
+
+        <!-- Unit 2 Game: Sequence, Odd/Even & Pattern Filling -->
+        <div id="view-unit2" class="view-section hidden w-full text-center space-y-4">
+            <div class="flex justify-between items-center bg-purple-50 p-3 rounded-xl">
+                <h3 class="text-xl font-bold text-purple-700">單元二：順數、倒數、奇數、偶數</h3>
+                <div class="flex gap-4">
+                    <span id="u2-progress" class="font-bold text-purple-500 bg-white px-3 py-1 rounded-lg shadow-sm">第 1 / 10 題</span>
+                    <span id="u2-score" class="font-bold text-purple-600 bg-white px-3 py-1 rounded-lg shadow-sm">得分: 0</span>
+                </div>
+            </div>
+            <div id="u2-game-box" class="bg-purple-50/50 p-6 rounded-2xl border-2 border-purple-200"></div>
+        </div>
+
+        <!-- Unit 3 Game: Comparing Quantities (X比Y, no "是", options: 大 / 小) -->
+        <div id="view-unit3" class="view-section hidden w-full text-center space-y-4">
+            <div class="flex justify-between items-center bg-blue-50 p-3 rounded-xl">
+                <h3 class="text-xl font-bold text-blue-700">單元三：比較數量</h3>
+                <div class="flex gap-4">
+                    <span id="u3-progress" class="font-bold text-blue-500 bg-white px-3 py-1 rounded-lg shadow-sm">第 1 / 10 題</span>
+                    <span id="u3-score" class="font-bold text-blue-600 bg-white px-3 py-1 rounded-lg shadow-sm">得分: 0</span>
+                </div>
+            </div>
+            <div id="u3-game-box" class="bg-blue-50/50 p-6 rounded-2xl border-2 border-blue-200"></div>
+        </div>
+
+        <!-- Unit 4 Game: Theater Seating -->
+        <div id="view-unit4" class="view-section hidden w-full text-center space-y-4">
+            <div class="flex justify-between items-center bg-green-50 p-3 rounded-xl">
+                <h3 class="text-xl font-bold text-green-700">單元四：排次序</h3>
+                <div class="flex gap-4">
+                    <span id="u4-progress" class="font-bold text-green-500 bg-white px-3 py-1 rounded-lg shadow-sm">第 1 / 10 題</span>
+                    <span id="u4-score" class="font-bold text-green-600 bg-white px-3 py-1 rounded-lg shadow-sm">得分: 0</span>
+                </div>
+            </div>
+            <div id="u4-game-box" class="bg-green-50/50 p-6 rounded-2xl border-2 border-green-200"></div>
+        </div>
+
+        <!-- Custom Feedback Modal -->
+        <div id="feedback-modal" class="hidden absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+            <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl space-y-4">
+                <div id="feedback-icon" class="text-5xl">🎉</div>
+                <h4 id="feedback-title" class="text-2xl font-bold text-gray-800">答對啦！</h4>
+                <p id="feedback-text" class="text-gray-600 text-lg">你真叻仔/叻女！</p>
+                <button onclick="closeFeedback()" class="w-full py-3 bg-indigo-500 hover:bg-indigo-600 text-white font-bold rounded-xl text-lg shadow bouncy-btn">繼續下一題</button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full max-w-4xl text-center py-3 text-white text-sm font-medium drop-shadow">
+        <p>💡 每回合 10 道題，附設聲效與語音朗讀功能</p>
+    </footer>
+
+    <script>
+        // --- Web Audio & TTS Speech Synthesis Setup ---
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('audio-toggle-btn');
+            if (soundEnabled) {
+                btn.innerHTML = "🔊 聲音效果：已開啟";
+                btn.className = "mt-3 px-4 py-1.5 bg-white/30 hover:bg-white/50 text-white rounded-full font-bold text-sm shadow backdrop-blur transition flex items-center gap-1.5";
+            } else {
+                btn.innerHTML = "🔇 聲音效果：已關閉";
+                btn.className = "mt-3 px-4 py-1.5 bg-gray-600/50 hover:bg-gray-600/70 text-white rounded-full font-bold text-sm shadow backdrop-blur transition flex items-center gap-1.5";
+            }
+        }
+
+        // Play click / tap sound
+        function playClickSound() {
+            if (!soundEnabled) return;
+            initAudio();
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } catch(e) {}
+        }
+
+        // Play correct jingle
+        function playCorrectSound() {
+            if (!soundEnabled) return;
+            initAudio();
+            try {
+                const now = audioCtx.currentTime;
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.25);
+                });
+            } catch(e) {}
+        }
+
+        // Play wrong buzzer
+        function playWrongSound() {
+            if (!soundEnabled) return;
+            initAudio();
+            try {
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.setValueAtTime(120, now + 0.15);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } catch(e) {}
+        }
+
+        // Text to Speech Helper for reading questions aloud
+        function speakText(text) {
+            if (!soundEnabled) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop any ongoing speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'zh-HK'; // Cantonese
+                utterance.rate = 0.9; // Slightly slower for kids
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Tab switching handler
+        function switchTab(tabId) {
+            playClickSound();
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('view-' + tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-4 py-2 rounded-xl font-bold bg-gray-100 text-gray-700 hover:bg-gray-200 bouncy-btn";
+            });
+            event.target.className = "tab-btn px-4 py-2 rounded-xl font-bold bg-amber-500 text-white bouncy-btn shadow";
+
+            if(tabId === 'unit1') startUnit1();
+            if(tabId === 'unit2') startUnit2();
+            if(tabId === 'unit3') startUnit3();
+            if(tabId === 'unit4') startUnit4();
+        }
+
+        // Custom Feedback Modal
+        function showFeedback(isCorrect, message, callback) {
+            const modal = document.getElementById('feedback-modal');
+            const icon = document.getElementById('feedback-icon');
+            const title = document.getElementById('feedback-title');
+            const text = document.getElementById('feedback-text');
+
+            if(isCorrect) {
+                playCorrectSound();
+                icon.innerText = "🌟";
+                title.innerText = "答對了！好棒啊！";
+                title.className = "text-2xl font-bold text-emerald-600";
+            } else {
+                playWrongSound();
+                icon.innerText = "💪";
+                title.innerText = "再試一次！加油！";
+                title.className = "text-2xl font-bold text-amber-600";
+            }
+            text.innerText = message;
+            modal.classList.remove('hidden');
+            window.currentCallback = callback;
+        }
+
+        function closeFeedback() {
+            playClickSound();
+            document.getElementById('feedback-modal').classList.add('hidden');
+            if(window.currentCallback) window.currentCallback();
+        }
+
+        // --- UNIT 1: Counting 1-20 (5 per row grid) ---
+        let u1Curr = 0, u1Score = 0;
+        const u1Items = ['🐟', '🐷', '🍓', '🍎', '🐞', '🐝', '🐚', '🐣', '🌸', '🍬'];
+        
+        function startUnit1() {
+            u1Curr = 0;
+            u1Score = 0;
+            document.getElementById('u1-score').innerText = `得分: 0`;
+            renderUnit1();
+        }
+
+        function renderUnit1() {
+            if(u1Curr >= 10) {
+                document.getElementById('u1-game-box').innerHTML = `
+                    <div class="text-center space-y-4 py-8">
+                        <div class="text-6xl">🏆</div>
+                        <h3 class="text-3xl font-extrabold text-pink-600">單元一 10題挑戰完成！</h3>
+                        <p class="text-xl font-bold text-gray-700">你獲得了 ${u1Score} / 100 分！</p>
+                        <button onclick="startUnit1()" class="px-6 py-3 bg-pink-500 text-white font-bold rounded-xl shadow bouncy-btn">再玩一次 (10題)</button>
+                    </div>
+                `;
+                speakText(`單元一挑戰完成！你獲得了 ${u1Score} 分！`);
+                return;
+            }
+
+            document.getElementById('u1-progress').innerText = `第 ${u1Curr + 1} / 10 題`;
+            const box = document.getElementById('u1-game-box');
+            const count = Math.floor(Math.random() * 18) + 3; // 3 to 20
+            const item = u1Items[Math.floor(Math.random() * u1Items.length)];
+            
+            let options = [count];
+            while(options.length < 4) {
+                let rnd = Math.floor(Math.random() * 20) + 1;
+                if(!options.includes(rnd)) options.push(rnd);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            let questionText = `數一數，圖中有幾多個？`;
+            // speakText(questionText); // Removed automatic speech on load
+
+            let html = `
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-lg font-bold text-pink-800">${questionText} (每行5個排列)</p>
+                    <button onclick="speakText('${questionText}')" class="px-3 py-1 bg-pink-200 text-pink-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                </div>
+                <div class="bg-white p-4 rounded-2xl shadow-inner border border-pink-200 flex flex-col items-center gap-2 mb-4">
+            `;
+            
+            for(let i=0; i<count; i+=5) {
+                let rowCount = Math.min(5, count - i);
+                html += `<div class="flex gap-2 text-3xl md:text-4xl">`;
+                for(let j=0; j<rowCount; j++) {
+                    html += `<span>${item}</span>`;
+                }
+                html += `</div>`;
+            }
+
+            html += `</div><div class="grid grid-cols-2 md:grid-cols-4 gap-3">`;
+            options.forEach(opt => {
+                html += `<button onclick="playClickSound(); checkUnit1(${opt}, ${count})" class="py-3 bg-white border-2 border-pink-400 text-pink-700 font-extrabold text-2xl rounded-xl shadow hover:bg-pink-500 hover:text-white bouncy-btn">${opt}</button>`;
+            });
+            html += `</div>`;
+            box.innerHTML = html;
+        }
+
+        function checkUnit1(selected, correct) {
+            if(selected === correct) {
+                u1Score += 10;
+                document.getElementById('u1-score').innerText = `得分: ${u1Score}`;
+                showFeedback(true, `正確！總共有 ${correct} 個！`, () => {
+                    u1Curr++;
+                    renderUnit1();
+                });
+            } else {
+                showFeedback(false, `數錯咗喇，再數一次吖！`, () => {
+                    u1Curr++;
+                    renderUnit1();
+                });
+            }
+        }
+
+        // --- UNIT 2: Sequence, Odd/Even & Pattern Filling ---
+        let u2Curr = 0, u2Score = 0;
+        function startUnit2() {
+            u2Curr = 0;
+            u2Score = 0;
+            document.getElementById('u2-score').innerText = `得分: 0`;
+            renderUnit2();
+        }
+
+        function renderUnit2() {
+            if(u2Curr >= 10) {
+                document.getElementById('u2-game-box').innerHTML = `
+                    <div class="text-center space-y-4 py-8">
+                        <div class="text-6xl">🏆</div>
+                        <h3 class="text-3xl font-extrabold text-purple-600">單元二 10題挑戰完成！</h3>
+                        <p class="text-xl font-bold text-gray-700">你獲得了 ${u2Score} / 100 分！</p>
+                        <button onclick="startUnit2()" class="px-6 py-3 bg-purple-500 text-white font-bold rounded-xl shadow bouncy-btn">再玩一次 (10題)</button>
+                    </div>
+                `;
+                speakText(`單元二挑戰完成！你獲得了 ${u2Score} 分！`);
+                return;
+            }
+
+            document.getElementById('u2-progress').innerText = `第 ${u2Curr + 1} / 10 題`;
+            const box = document.getElementById('u2-game-box');
+            const modeRand = Math.random();
+
+            if(modeRand < 0.25) {
+                const isForward = Math.random() > 0.5;
+                const start = Math.floor(Math.random() * 8) + 1;
+                let seq = [];
+                for(let i=0; i<5; i++) {
+                    seq.push(isForward ? start + i : start + 4 - i);
+                }
+
+                let qText = `觀察以下數列，這是順數還是倒數？`;
+                // speakText(qText); // Removed automatic speech on load
+
+                let html = `
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-lg font-bold text-purple-800">${qText}</p>
+                        <button onclick="speakText('${qText}')" class="px-3 py-1 bg-purple-200 text-purple-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                    </div>
+                    <p class="text-xs text-purple-600 mb-2">(提示：數字愈來愈大是順數，愈來愈小是倒數)</p>
+                    <div class="flex justify-center items-center gap-2 my-4">
+                `;
+                seq.forEach((num, idx) => {
+                    html += `<div class="w-12 h-12 md:w-16 md:h-16 flex items-center justify-center bg-white border-2 border-purple-400 rounded-xl text-xl md:text-2xl font-bold shadow">${num}</div>`;
+                    if(idx < seq.length - 1) html += `<span class="text-purple-500 font-bold">➔</span>`;
+                });
+                const correctStr = isForward ? '順數' : '倒數';
+                html += `</div><div class="flex justify-center gap-6 mt-4">
+                    <button onclick="playClickSound(); checkUnit2('順數', '${correctStr}')" class="px-8 py-4 bg-white border-2 border-purple-400 text-purple-700 font-bold text-xl rounded-2xl shadow hover:bg-purple-500 hover:text-white bouncy-btn">順數</button>
+                    <button onclick="playClickSound(); checkUnit2('倒數', '${correctStr}')" class="px-8 py-4 bg-white border-2 border-purple-400 text-purple-700 font-bold text-xl rounded-2xl shadow hover:bg-purple-500 hover:text-white bouncy-btn">倒數</button>
+                </div>`;
+                box.innerHTML = html;
+            } else if(modeRand < 0.5) {
+                const num = Math.floor(Math.random() * 20) + 1;
+                const isEven = num % 2 === 0;
+                const correctStr = isEven ? '偶數' : '奇數';
+                let qText = `數字 ${num} 係奇數定偶數？`;
+                // speakText(qText); // Removed automatic speech on load
+
+                let html = `
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-lg font-bold text-purple-800">請判斷以下數字：</p>
+                        <button onclick="speakText('${qText}')" class="px-3 py-1 bg-purple-200 text-purple-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                    </div>
+                    <div class="my-4 text-5xl font-extrabold text-purple-600">${num}</div>
+                    <div class="flex justify-center gap-4">
+                        <button onclick="playClickSound(); checkUnit2('偶數', '${correctStr}')" class="px-8 py-4 bg-white border-2 border-purple-400 text-purple-700 font-bold text-xl rounded-2xl shadow hover:bg-purple-500 hover:text-white bouncy-btn">偶數 (雙數)</button>
+                        <button onclick="playClickSound(); checkUnit2('奇數', '${correctStr}')" class="px-8 py-4 bg-white border-2 border-purple-400 text-purple-700 font-bold text-xl rounded-2xl shadow hover:bg-purple-500 hover:text-white bouncy-btn">奇數 (單數)</button>
+                    </div>
+                `;
+                box.innerHTML = html;
+            } else if(modeRand < 0.75) {
+                const isForward = Math.random() > 0.5;
+                const start = Math.floor(Math.random() * 10) + 2;
+                let fullSeq = [];
+                for(let i=0; i<5; i++) {
+                    fullSeq.push(isForward ? start + i : start + 4 - i);
+                }
+                const blankIdx = Math.floor(Math.random() * 3) + 1;
+                const correctAns = fullSeq[blankIdx];
+
+                let options = [correctAns];
+                while(options.length < 4) {
+                    let rnd = Math.floor(Math.random() * 20) + 1;
+                    if(!options.includes(rnd)) options.push(rnd);
+                }
+                options.sort(() => Math.random() - 0.5);
+
+                let qText = `依規律填一填，空格內應該填什麼數字？`;
+                // speakText(qText); // Removed automatic speech on load
+
+                let html = `
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-lg font-bold text-purple-800">${qText}</p>
+                        <button onclick="speakText('${qText}')" class="px-3 py-1 bg-purple-200 text-purple-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                    </div>
+                    <div class="flex justify-center items-center gap-2 my-4 flex-wrap">
+                `;
+                fullSeq.forEach((num, idx) => {
+                    if(idx === blankIdx) {
+                        html += `<div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center bg-purple-100 border-4 border-dashed border-purple-500 rounded-xl text-xl md:text-2xl font-bold text-purple-800 shadow">?</div>`;
+                    } else {
+                        html += `<div class="w-14 h-14 md:w-16 md:h-16 flex items-center justify-center bg-white border-2 border-purple-400 rounded-xl text-xl md:text-2xl font-bold shadow">${num}</div>`;
+                    }
+                    if(idx < fullSeq.length - 1) html += `<span class="text-purple-400 font-bold">➔</span>`;
+                });
+                html += `</div><div class="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4">`;
+                options.forEach(opt => {
+                    html += `<button onclick="playClickSound(); checkUnit2(${opt}, ${correctAns})" class="py-3 bg-white border-2 border-purple-400 text-purple-700 font-extrabold text-2xl rounded-xl shadow hover:bg-purple-500 hover:text-white bouncy-btn">${opt}</button>`;
+                });
+                html += `</div>`;
+                box.innerHTML = html;
+            } else {
+                const targetIsOdd = Math.random() > 0.5;
+                const targetTypeName = targetIsOdd ? "奇數" : "偶數";
+                
+                let pool = [];
+                while(pool.length < 6) {
+                    let n = Math.floor(Math.random() * 20) + 1;
+                    if(!pool.includes(n)) pool.push(n);
+                }
+                
+                let correctNumbers = pool.filter(n => targetIsOdd ? (n % 2 !== 0) : (n % 2 === 0));
+                if(correctNumbers.length === 0) {
+                    pool[0] = targetIsOdd ? 3 : 4;
+                    correctNumbers = pool.filter(n => targetIsOdd ? (n % 2 !== 0) : (n % 2 === 0));
+                }
+                
+                window.currentMultiSelected = [];
+                window.targetCorrectNumbers = correctNumbers.sort((a,b)=>a-b);
+
+                let qText = `請在下方選出所有的${targetTypeName}。`;
+                // speakText(qText); // Removed automatic speech on load
+
+                let html = `
+                    <div class="flex justify-between items-center mb-1">
+                        <p class="text-lg font-bold text-purple-800">${qText}</p>
+                        <button onclick="speakText('${qText}')" class="px-3 py-1 bg-purple-200 text-purple-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                    </div>
+                    <p class="text-xs text-purple-600 mb-3">(可選多個，點擊選取後按提交)</p>
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-3 my-4">
+                `;
+                pool.forEach(n => {
+                    html += `<button id="num-btn-${n}" onclick="playClickSound(); toggleMultiNum(${n})" class="py-4 bg-white border-2 border-purple-300 text-purple-800 font-extrabold text-2xl rounded-xl shadow hover:bg-purple-100 bouncy-btn">${n}</button>`;
+                });
+                html += `</div>
+                    <button onclick="playClickSound(); submitMultiSelection()" class="mt-2 px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-xl shadow-md bouncy-btn text-lg">提交答案</button>
+                `;
+                box.innerHTML = html;
+            }
+        }
+
+        function toggleMultiNum(n) {
+            const btn = document.getElementById(`num-btn-${n}`);
+            const idx = window.currentMultiSelected.indexOf(n);
+            if(idx > -1) {
+                window.currentMultiSelected.splice(idx, 1);
+                btn.className = "py-4 bg-white border-2 border-purple-300 text-purple-800 font-extrabold text-2xl rounded-xl shadow hover:bg-purple-100 bouncy-btn";
+            } else {
+                window.currentMultiSelected.push(n);
+                btn.className = "py-4 bg-purple-500 border-2 border-purple-600 text-white font-extrabold text-2xl rounded-xl shadow bouncy-btn";
+            }
+        }
+
+        function submitMultiSelection() {
+            const userAns = [...window.currentMultiSelected].sort((a,b)=>a-b);
+            const correctAns = window.targetCorrectNumbers;
+            const isMatch = JSON.stringify(userAns) === JSON.stringify(correctAns);
+
+            if(isMatch) {
+                u2Score += 10;
+                document.getElementById('u2-score').innerText = `得分: ${u2Score}`;
+                showFeedback(true, `答對啦！完全正確！`, () => {
+                    u2Curr++;
+                    renderUnit2();
+                });
+            } else {
+                showFeedback(false, `唔正確啊！正確答案應該係：${correctAns.join(', ')}`, () => {
+                    u2Curr++;
+                    renderUnit2();
+                });
+            }
+        }
+
+        function checkUnit2(selected, correct) {
+            if(String(selected) === String(correct)) {
+                u2Score += 10;
+                document.getElementById('u2-score').innerText = `得分: ${u2Score}`;
+                showFeedback(true, `答對啦！`, () => {
+                    u2Curr++;
+                    renderUnit2();
+                });
+            } else {
+                showFeedback(false, `再諗一諗，正確答案是「${correct}」吖！`, () => {
+                    u2Curr++;
+                    renderUnit2();
+                });
+            }
+        }
+
+        // --- UNIT 3: Comparing Quantities (X比Y, no "same", options: 大 / 小) ---
+        let u3Curr = 0, u3Score = 0;
+        function startUnit3() {
+            u3Curr = 0;
+            u3Score = 0;
+            document.getElementById('u3-score').innerText = `得分: 0`;
+            renderUnit3();
+        }
+
+        function renderUnit3() {
+            if(u3Curr >= 10) {
+                document.getElementById('u3-game-box').innerHTML = `
+                    <div class="text-center space-y-4 py-8">
+                        <div class="text-6xl">🏆</div>
+                        <h3 class="text-3xl font-extrabold text-blue-600">單元三 10題挑戰完成！</h3>
+                        <p class="text-xl font-bold text-gray-700">你獲得了 ${u3Score} / 100 分！</p>
+                        <button onclick="startUnit3()" class="px-6 py-3 bg-blue-500 text-white font-bold rounded-xl shadow bouncy-btn">再玩一次 (10題)</button>
+                    </div>
+                `;
+                speakText(`單元三挑戰完成！你獲得了 ${u3Score} 分！`);
+                return;
+            }
+
+            document.getElementById('u3-progress').innerText = `第 ${u3Curr + 1} / 10 題`;
+            const box = document.getElementById('u3-game-box');
+            const x = Math.floor(Math.random() * 18) + 2;
+            let y = Math.floor(Math.random() * 18) + 2;
+            while(x === y) y = Math.floor(Math.random() * 18) + 2;
+
+            let qText = `${x} 比 ${y} ...？`;
+            // speakText(qText); // Removed automatic speech on load
+
+            let html = `
+                <div class="flex justify-between items-center mb-2">
+                    <p class="text-lg font-bold text-blue-800">請根據數字作比較：</p>
+                    <button onclick="speakText('${qText}')" class="px-3 py-1 bg-blue-200 text-blue-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                </div>
+                <div class="my-4 text-2xl md:text-3xl font-extrabold text-blue-900 bg-white p-6 rounded-2xl shadow border border-blue-200">
+                    <span>${x} 比 ${y} ...？</span>
+                </div>
+                <div class="flex justify-center gap-6 mt-6">
+                    <button onclick="playClickSound(); checkUnit3('大', ${x}, ${y})" class="px-10 py-5 bg-white border-4 border-blue-400 text-blue-700 font-extrabold text-2xl rounded-2xl shadow hover:bg-blue-500 hover:text-white bouncy-btn">大</button>
+                    <button onclick="playClickSound(); checkUnit3('小', ${x}, ${y})" class="px-10 py-5 bg-white border-4 border-blue-400 text-blue-700 font-extrabold text-2xl rounded-2xl shadow hover:bg-blue-500 hover:text-white bouncy-btn">小</button>
+                </div>
+            `;
+            box.innerHTML = html;
+        }
+
+        function checkUnit3(choice, x, y) {
+            const correct = x > y ? '大' : '小';
+            if(choice === correct) {
+                u3Score += 10;
+                document.getElementById('u3-score').innerText = `得分: ${u3Score}`;
+                showFeedback(true, `答對啦！${x} 比 ${y} 確實是「${correct}」的！`, () => {
+                    u3Curr++;
+                    renderUnit3();
+                });
+            } else {
+                showFeedback(false, `唔啱啊，${x} 比 ${y} 應該係「${correct}」先真！`, () => {
+                    u3Curr++;
+                    renderUnit3();
+                });
+            }
+        }
+
+        // --- UNIT 4: Theater Seating ---
+        let u4Curr = 0, u4Score = 0;
+        const studentNames = ['可晴', '心悅', '柏康', '思思', '浩庭', '子朗', '美兒', '明生', '俊樂', '家文'];
+
+        function startUnit4() {
+            u4Curr = 0;
+            u4Score = 0;
+            document.getElementById('u4-score').innerText = `得分: 0`;
+            renderUnit4();
+        }
+
+        function renderUnit4() {
+            if(u4Curr >= 10) {
+                document.getElementById('u4-game-box').innerHTML = `
+                    <div class="text-center space-y-4 py-8">
+                        <div class="text-6xl">🏆</div>
+                        <h3 class="text-3xl font-extrabold text-green-600">單元四 10題挑戰完成！</h3>
+                        <p class="text-xl font-bold text-gray-700">你獲得了 ${u4Score} / 100 分！</p>
+                        <button onclick="startUnit4()" class="px-6 py-3 bg-green-500 text-white font-bold rounded-xl shadow bouncy-btn">再玩一次 (10題)</button>
+                    </div>
+                `;
+                speakText(`單元四挑戰完成！你獲得了 ${u4Score} 分！`);
+                return;
+            }
+
+            document.getElementById('u4-progress').innerText = `第 ${u4Curr + 1} / 10 題`;
+            const box = document.getElementById('u4-game-box');
+            
+            const targetRow = Math.floor(Math.random() * 4) + 1;
+            const targetCol = Math.floor(Math.random() * 4) + 1;
+            const student = studentNames[Math.floor(Math.random() * studentNames.length)];
+
+            let correctAns = `第 ${targetRow} 行 第 ${targetCol} 個位`;
+            
+            let options = [correctAns];
+            while(options.length < 4) {
+                let r = Math.floor(Math.random() * 4) + 1;
+                let c = Math.floor(Math.random() * 4) + 1;
+                let optStr = `第 ${r} 行 第 ${c} 個位`;
+                if(!options.includes(optStr)) options.push(optStr);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            let qText = `請問 ${student} 坐在哪個位置？`;
+            // speakText(qText); // Removed automatic speech on load
+
+            let html = `
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                    <div class="md:col-span-5 text-left space-y-3">
+                        <div class="p-4 bg-green-100/60 rounded-xl border border-green-200 text-lg font-bold text-green-900 flex flex-col gap-2">
+                            <span>請問 <b>${student}</b> 坐在哪個位置？</span>
+                            <button onclick="speakText('${qText}')" class="self-start px-3 py-1 bg-green-200 text-green-800 rounded-lg text-sm font-bold shadow bouncy-btn flex items-center gap-1">🔊 讀題目</button>
+                        </div>
+                    </div>
+                    <div class="md:col-span-7 bg-white p-4 rounded-2xl shadow-inner border border-green-200 flex flex-col items-center">
+                        <div class="flex flex-col gap-2">
+            `;
+            
+            for(let r=4; r>=1; r--) {
+                html += `<div class="flex items-center gap-2">`;
+                html += `<span class="w-16 text-right text-xs md:text-sm font-bold text-green-800 pr-1">第 ${r} 行</span>`;
+                html += `<div class="grid grid-cols-4 gap-2">`;
+                for(let c=1; c<=4; c++) {
+                    let isTarget = (r === targetRow && c === targetCol);
+                    html += `<div class="w-12 h-12 md:w-14 md:h-14 flex items-center justify-center rounded-xl border ${isTarget ? 'bg-green-200 border-green-500 text-green-900 font-extrabold shadow-sm' : 'bg-gray-50 border-gray-200 text-gray-600'} text-lg">
+                        ${isTarget ? student : '💺'}
+                    </div>`;
+                }
+                html += `</div></div>`;
+            }
+
+            html += `</div>
+                        <div class="flex items-center gap-2 mt-2 pl-16">
+                            <div class="grid grid-cols-4 gap-2 w-full text-center">
+                                <span class="text-xs md:text-sm font-bold text-green-800">第 1 個位</span>
+                                <span class="text-xs md:text-sm font-bold text-green-800">第 2 個位</span>
+                                <span class="text-xs md:text-sm font-bold text-green-800">第 3 個位</span>
+                                <span class="text-xs md:text-sm font-bold text-green-800">第 4 個位</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mt-6">`;
+
+            options.forEach(opt => {
+                html += `<button onclick="playClickSound(); checkUnit4('${opt}', '${correctAns}')" class="py-3 bg-white border-2 border-green-400 text-green-700 font-extrabold text-lg rounded-xl shadow hover:bg-green-500 hover:text-white bouncy-btn">${opt}</button>`;
+            });
+            html += `</div>`;
+            box.innerHTML = html;
+        }
+
+        function checkUnit4(selected, correct) {
+            if(selected === correct) {
+                u4Score += 10;
+                document.getElementById('u4-score').innerText = `得分: ${u4Score}`;
+                showFeedback(true, `答對啦！坐標位置非常正確！`, () => {
+                    u4Curr++;
+                    renderUnit4();
+                });
+            } else {
+                showFeedback(false, `數錯行數或位置喇，再檢查一次！`, () => {
+                    u4Curr++;
+                    renderUnit4();
+                });
+            }
+        }
+    </script>
+</body>
+</html>
